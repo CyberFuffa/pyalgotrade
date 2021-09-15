@@ -36,18 +36,19 @@ LiveBroker = livebroker.LiveBroker
 class TradeValidatorPredicate(object):
     def isValidTrade(self, action, instrument, limitPrice, quantity):
         # https://www.bitstamp.net/fee-schedule/
-        # Our minimum order size is 5 for Euro denominated trading pairs, 5 for USD denominated trading pairs,
-        # and 0.001 BTC for Bitcoin denominated trading pairs.
+        # The minimum order size is 20 EUR/GBP/PAX/USD/USDC/USDT for EUR/GBP/PAX/USD/USDC/USDT-denominated
+        # trading pairs, 0.0002 BTC for BTC-denominated trading pairs, and 0.005 ETH for ETH-denominated
+        # trading pairs.
 
         base_currency, quote_currency = common.split_currency_pair(instrument)
         assert base_currency == common.BTC_SYMBOL
         assert quote_currency == common.USD_SYMBOL
 
-        if base_currency == common.BTC_SYMBOL and quantity < 0.001:
-            return False, "Trade must be >= 0.001 %s" % base_currency
+        if base_currency == common.BTC_SYMBOL and quantity < 0.0002:
+            return False, "Trade must be >= 0.0002 %s" % base_currency
 
-        if limitPrice and quote_currency in common.SUPPORTED_FIAT_CURRENCIES and limitPrice * quantity < 5:
-            return False, "Trade must be >= 5 %s" % quote_currency
+        if limitPrice and quote_currency in common.SUPPORTED_FIAT_CURRENCIES and limitPrice * quantity < 20:
+            return False, "Trade must be >= 20 %s" % quote_currency
 
         return True, None
 
