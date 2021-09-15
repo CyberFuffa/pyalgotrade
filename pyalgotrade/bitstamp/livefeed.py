@@ -87,7 +87,6 @@ class TradeBar(bar.Bar):
     def isSell(self):
         return not self.__trade.isBuy()
 
-
 class LiveTradeFeed(barfeed.BaseBarFeed):
 
     """A real-time BarFeed that builds bars from live trades.
@@ -184,10 +183,18 @@ class LiveTradeFeed(barfeed.BaseBarFeed):
         return False
 
     def getNextBars(self):
-        ret = None
         if len(self.__barDicts):
-            ret = bar.Bars(self.__barDicts.pop(0))
-        return ret
+            bars = bar.Bars(self.__barDicts.pop(0))
+            dateTime = bars.getDateTime()
+            currentBars = self.getCurrentBars()
+            if (currentBars is not None):
+                currentDateTime = currentBars.getDateTime()
+                # Fix: Exception: Bar date times are not in order. Previous datetime was 2021-09-15 15:05:48.344000+00:00 and current datetime is 2021-09-15 15:05:48.344000+00:00
+                # Sometime Bitstamp sends same bars twice
+                if (currentDateTime == dateTime):
+                    return None
+            return bars
+        return None
 
     def peekDateTime(self):
         # Return None since this is a realtime subject.
