@@ -9,7 +9,7 @@ class Strategy(strategy.BaseStrategy):
     def __init__(self, feed, brk):
         super(Strategy, self).__init__(feed, brk)
         smaPeriod = 20
-        self.__instrument = "BTC"
+        self.__instrument = "BTC/USD"
         self.__prices = feed[self.__instrument].getCloseDataSeries()
         self.__sma = ma.SMA(self.__prices, smaPeriod)
         self.__bid = None

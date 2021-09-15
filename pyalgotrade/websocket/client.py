@@ -35,18 +35,24 @@ logger = pyalgotrade.logger.getLogger(__name__)
 class WebSocketClientBase(websocket.WebSocketApp):
     def __init__(self, url, ping_interval, ping_timeout):
         super(WebSocketClientBase, self).__init__(
-            url, on_message=self.onMessage, on_open=self._on_opened, on_close=self._on_closed, on_error=self.onError
+            url, on_message=self._on_message, on_open=self._on_opened, on_close=self._on_closed, on_error=self._on_error
         )
         self.__connected = False
         self.__ping_interval = ping_interval
         self.__ping_timeout = ping_timeout
         self.__initialized = threading.Event()
 
-    def _on_opened(self):
+    def _on_opened(self, ws):
         self.__connected = True
         self.onOpened()
 
-    def _on_closed(self, code, reason):
+    def _on_message(self, ws, msg):
+        self.onMessage(msg)
+
+    def _on_error(self, ws, event):
+        self.onError(event)
+
+    def _on_closed(self, ws, code, reason):
         if self.__connected:
             self.__connected = False
             self.onClosed(code, reason)
