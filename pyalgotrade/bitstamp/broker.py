@@ -75,6 +75,18 @@ class BacktestingBroker(backtesting.Broker):
         super(BacktestingBroker, self).__init__(cash, barFeed, commission)
         self._tradeValidatorPredicate = TradeValidatorPredicate()
 
+    def getEquity(self):
+        """Returns the portfolio value (cash + shares * price)."""
+        instrumentPrice = 0
+        lastBar = self.__barFeed.getLastBar("BTC/USD")
+
+        if (lastBar is not None):
+            instrumentPrice = lastBar.getPrice()
+
+        ret = self.getCash()
+        ret += instrumentPrice * self.getShares("BTC")
+        return ret
+
     def splitCurrencyPair(self, instrument):
         baseCurrency, _ = common.split_currency_pair(instrument)
         return baseCurrency, None
